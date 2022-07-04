@@ -1,3 +1,4 @@
+import kotlin.math.nextDown
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -6,24 +7,27 @@ import kotlin.time.toDuration
 
 @OptIn(ExperimentalTime::class)
 object QController {
-
+//To hold the list of classes
     var generatedCustomers=listOf<Customer>()
 
 init {
+    //To set up the Queue
 setUpQController()
 }
 
 
 
 
-
+/** Having the Function to Set up the range**/
     private fun setUpQController() {
-        print("Put in the number of Customers you would like to Generate <= 30: ")
+    print("Put in the Arrival rate you want should be <=30: ")
         var amountofCustomer: Int =Integer.valueOf(readLine())
-        print("Put in the range of arrival time 0 for Close Range 1 for Wild Range: ")
+        print("Put in the range of random values 0 for Close Range 1 for Wild Range: ")
         var rangeOfarrivalTime: Int =Integer.valueOf(readLine())
-        print("Put in the range of arrival time 0 for Close Range 1 for Wild Range: ")
+        print("Put in the range of random values 0 for Close Range 1 for Wild Range: ")
         var rangeOfserviceTime: Int =Integer.valueOf(readLine())
+
+
 
         val avlTimefunction:()->Duration
         val serviceTimefunction:()->Duration
@@ -34,7 +38,7 @@ setUpQController()
             else->avlTimefunction={ wildRangeArrivalTimeGenerator()}
 
         }
-        when(rangeOfarrivalTime){
+        when(rangeOfserviceTime){
             0->serviceTimefunction={ closeRangeServiceTimeGenerator() }
             1->serviceTimefunction={ wildRangeServiceTimeGenerator() }
             else->serviceTimefunction={ wildRangeServiceTimeGenerator() }
@@ -47,30 +51,40 @@ setUpQController()
     private fun generateage():Int{
         return Random.nextInt(from=10,until = 80)
     }
-    private fun closeRangeArrivalTimeGenerator():Duration{
-        val avlTimevalue= Random.nextDouble(from = 60000.00, until = 120000.00)
+    /**Getting the arrival rate time based on a Poisson distribution  **/
 
-        return avlTimevalue.toDuration(DurationUnit.MILLISECONDS)
+    private fun closeRangeArrivalTimeGenerator(lambda:Double=4.0):Duration{
+        val randomavlTimevalue= Random.nextDouble(from = 0.55555555, until = 0.666778)
+        var x=Math.log(1-randomavlTimevalue.nextDown())/(-lambda)
+        return x.toDuration(DurationUnit.HOURS)
+
+    }
+
+
+
+
+
+
+    private fun wildRangeArrivalTimeGenerator(lambda:Double=10.0):Duration{
+        val randomavlTimevalue= Random.nextDouble(from = 0.5555555, until = 0.656778)
+        var x=Math.log(1-randomavlTimevalue.nextDown())/(-lambda)
+        return x.toDuration(DurationUnit.HOURS)
+
+    }
+
+    private fun closeRangeServiceTimeGenerator(mu:Double=8.0):Duration{
+        val SevTimevalue= Random.nextDouble(from = 0.5555555, until = 0.656778)
+        var x=Math.log(1-SevTimevalue.nextDown())/(1/-mu)
+        return x.toDuration(DurationUnit.MINUTES)
 
     }
 
 
 
-    private fun wildRangeArrivalTimeGenerator():Duration{
-        val avlTimevalue= Random.nextDouble(from = 60000.00, until = 1200000.00)
-        return avlTimevalue.toDuration(DurationUnit.MILLISECONDS)
-
-    }
-
-    private fun closeRangeServiceTimeGenerator():Duration{
-        val SevTimevalue= Random.nextDouble(from = 60000.00, until = 120000.00)
-        return SevTimevalue.toDuration(DurationUnit.MILLISECONDS)
-
-    }
-
-    private fun wildRangeServiceTimeGenerator():Duration{
-        val SevTimevalue= Random.nextDouble(from = 60000.00, until = 600000.00)
-        return SevTimevalue.toDuration(DurationUnit.MILLISECONDS)
+    private fun wildRangeServiceTimeGenerator(mu:Double=5.0):Duration{
+        val SevTimevalue= Random.nextDouble(from = 0.55, until = 0.7899)
+        var x=Math.log(1-SevTimevalue.nextDown())/(1/-mu)
+        return x.toDuration(DurationUnit.MINUTES)
 
     }
 
@@ -83,7 +97,7 @@ setUpQController()
         return booleanresult
     }
 
-
+/**Generating the Customer Entity of the Customer for the Simulation**/
     private fun generateRandomCustomerEntitys(amountofCustomer: Int,arrivalTimenumber:()->Duration,serviceTimenumber:()->Duration) {
         var tempGeneratedCustomers= mutableListOf<Customer>()
          for(i in 0 until amountofCustomer){
@@ -100,13 +114,13 @@ setUpQController()
          }
         tempGeneratedCustomers.forEach {
             if (it.age>50 || it.age<=10){
-            it.priorityPoint=it.priorityPoint+1
+            it.priorityPoint=0
             }
             if(it.currentlySick){
-                it.priorityPoint=it.priorityPoint+1
+                it.priorityPoint=0
             }
             if(it.emergency){
-                it.priorityPoint=5
+                it.priorityPoint=0
             }
         }
 
@@ -116,7 +130,7 @@ setUpQController()
 
 
 
-
+/**Sort the gentrated list based on Arrival time**/
     fun sortedCustomersBasedOnArrival(){
         println("This is a List for  ${generatedCustomers.size} Generated Customer  based on their Arrival Time")
         val timeAvl=compareBy<Customer> { it.arrivalTime }
@@ -132,24 +146,13 @@ setUpQController()
         generatedCustomers.forEach { println(it) }
     }
 
+    /**Sort the  Next group to be simulated  based on their arrival time,and current time*/
     fun getNextGroupBasedOnPredicate(currentTime:Duration):List<Customer>{
         //Could refactor to a function
         val ArrivalTime=compareBy<Customer> { it.arrivalTime }
         var groupTogoToQueue=generatedCustomers.filter { it.arrivalTime<=currentTime }
         generatedCustomers=generatedCustomers.filterNot { it.arrivalTime<=currentTime}
-        /**
-      var callist=groupTogoToQueue.groupBy { it.priorityPoint }.values.toList()
 
-      var updatedQueue= mutableListOf<Customer>()
-        println("{{{{{{{{{{{{{{{{{{{{{{{{{")
-        callist.forEach { it.forEach { println(it) } }
-        println("{{{{{{{{{{{{{{{{{{{{{{{{{")
-
-        callist.forEach {it.sortedWith(ArrivalTime).forEach { updatedQueue.add(it)}}
-
-        println("\n-------------This is the UpDataList---------------------")
-        updatedQueue.forEach { println(it) }
-        println("\n------------- UpDataList ENDED---------------------\n")**/
 
         return (groupTogoToQueue)
 

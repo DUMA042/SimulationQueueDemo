@@ -1,6 +1,7 @@
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
+/**For Fields  of the Customer Class*/
 @ExperimentalTime
 data class Customer(val name:String,
                     val age:Int,

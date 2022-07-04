@@ -89,7 +89,7 @@ currentCustomer?.let { println(it) }
 
 
     fun getmaxWaitTime(): Duration? {
-     val maxWaitTime=listOfCustomersServiced.maxOfOrNull {it.waitTime?:Duration.Companion.milliseconds(0.0) }
+     val maxWaitTime=listOfCustomersServiced.maxOfOrNull {it.waitTime?:Duration.Companion.minutes(5.0) }
      println(listOfCustomersServiced.filter { it.waitTime==maxWaitTime })
         return maxWaitTime
     }
@@ -105,7 +105,7 @@ currentCustomer?.let { println(it) }
     }
 
     fun getMinWaitTime():Duration?{
-        val minWaitTime=listOfCustomersServiced.minOfOrNull {it.waitTime?:Duration.Companion.milliseconds(0.0) }
+        val minWaitTime=listOfCustomersServiced.minOfOrNull {it.waitTime?:Duration.Companion.minutes(5.0)  }
         println(listOfCustomersServiced.filter { it.waitTime==minWaitTime })
         return minWaitTime
     }

@@ -1,3 +1,5 @@
+
+/**For Generating the Names **/
 val uniqueNameList= listOf("Liam",
     "Olivia",
     "Emma",

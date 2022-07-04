@@ -1,4 +1,0 @@
-package TestingTimeandRandom
-
-class TempTest {
-}
